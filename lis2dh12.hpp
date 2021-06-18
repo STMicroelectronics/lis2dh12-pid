@@ -20,7 +20,7 @@ enum ConnectionMode {
 
 class LIS2DH12 {
 public:
-    LIS2DH12(const char *pathDevice, PowerMode, ConnectionMode);
+    LIS2DH12(const char*, PowerMode, ConnectionMode);
     ~LIS2DH12() {
         close(getfd());
     }
@@ -30,8 +30,8 @@ public:
     }
     int getAccelerationRaw(int16_t *x, int16_t *y, int16_t *z);
     int getTemperatureRaw(int16_t *temp);
-    // char getInterrupt_1();
-    // char getInterrupt_2();
+    char getInterrupt_1();
+    char getInterrupt_2();
     int configPowerMode(PowerMode);
     int configInterruption(InterruptMode);
 
@@ -44,12 +44,15 @@ private:
         }
         return -1;
     }
-    int initDevice(const char *pathDevice);
+    int initDevice(const char*);
 
     int32_t i2c_write(void *handle, uint8_t reg, const uint8_t *data, uint16_t len);
     int32_t i2c_read (void *handle, uint8_t reg, uint8_t *data, uint16_t len);
     int32_t spi_write(void *handle, uint8_t reg, const uint8_t *data, uint16_t len);
     int32_t spi_read (void *handle, uint8_t reg, uint8_t *data, uint16_t len);
+
+    unsigned int spiMaxSpeed = 0;
+    int spiMode = 0;
 };
 
 #endif // LIS2DH12_DRIVER
