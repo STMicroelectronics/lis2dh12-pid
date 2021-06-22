@@ -7,23 +7,7 @@
 
 class LIS2DH12 {
 public:
-    LIS2DH12(lis2dh12_op_md_t op, stmdev_write_ptr wr, stmdev_read_ptr rd) {
-        // NOTE: if to use SPI, check CTRL_REG4 bit 0 and edit this code if to need
-        dev_ctx->write_reg = wr;
-        dev_ctx->read_reg = rd;
-        
-        operation_mode = op;
-        error_status = 0;
-        microsecond = 0;
-        
-        uint8_t whoamI
-        lis2dh12_device_id_get(&dev_ctx, &whoamI);
-        if (whoamI != LIS2DH12_ID) {
-            error_status = -1;
-        } else {
-            disable();
-        }
-    }
+    LIS2DH12(lis2dh12_op_md_t op, stmdev_write_ptr wr, stmdev_read_ptr rd);
 
     ~LIS2DH12(){}
 
