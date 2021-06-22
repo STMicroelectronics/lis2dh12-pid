@@ -9,8 +9,8 @@ class LIS2DH12 {
 public:
     LIS2DH12(lis2dh12_op_md_t op, stmdev_write_ptr wr, stmdev_read_ptr rd) {
         // NOTE: if to use SPI, check CTRL_REG4 bit 0 and edit this code if to need
-        ctx->write_reg = wr;
-        ctx->read_reg = rd;
+        dev_ctx->write_reg = wr;
+        dev_ctx->read_reg = rd;
         
         operation_mode = op;
         error_status = 0;
@@ -31,8 +31,10 @@ public:
         return error_status;
     }
     
-    void enable(lis2dh12_odr_t odr);
-    void disable();
+    void enable_sensor(lis2dh12_odr_t odr);
+    void disable_sensor();
+    void enable_temperature();
+    void disable_temperature();
     int16_t* acceleration_raw();
     int16_t* acceleration();
     int16_t temperature_raw();
@@ -46,7 +48,7 @@ private:
         usleep(microsecond);
     }
 
-    stmdev_ctx_t ctx[1];
+    stmdev_dev_ctx_t dev_ctx[1];
     lis2dh12_op_md_t operation_mode;
     int error_status;
     unsigned int microsecond;

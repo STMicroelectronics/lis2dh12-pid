@@ -10,8 +10,8 @@ convert_int16_float_ptr convert_acceleration;
 convert_int16_float_ptr convert_temperature;
 
 
-void LIS2DH12::enable(lis2dh12_odr_t odr){
-    error_status = lis2dh12_data_rate_set(ctx, odr);
+void LIS2DH12::enable_sensor(lis2dh12_odr_t odr){
+    error_status = lis2dh12_data_rate_set(dev_ctx, odr);
     switch (odr) {
         case LIS2DH12_POWER_DOWN:
             microsecond = 0;
@@ -62,27 +62,35 @@ void LIS2DH12::enable(lis2dh12_odr_t odr){
     }
 }
 
-void LIS2DH12::disable(){
-    error_status = lis2dh12_data_rate_set(ctx, LIS2DH12_POWER_DOWN);
+void LIS2DH12::disable_sensor(){
+    error_status = lis2dh12_data_rate_set(dev_ctx, LIS2DH12_POWER_DOWN);
+}
+
+void LIS2DH12::enable_temperature(){
+    error_status = lis2dh12_temperature_meas_set(dev_ctx, LIS2DH12_TEMP_ENABLE);
+}
+
+void LIS2DH12::disable_temperature(){
+    error_status = lis2dh12_temperature_meas_set(dev_ctx, LIS2DH12_TEMP_DISABLE);
 }
 
 int16_t* LIS2DH12::acceleration_raw(){
     uint8_t acc_ready;
-    error_status = lis2dh12_xl_data_ready_get(ctx, acc_ready);
+    error_status = lis2dh12_xl_data_ready_get(dev_ctx, acc_ready);
 
     if (error_status != 0 || !acc_ready) {
         wait_value();
     }
 
     int16_t acc_raw[3];
-    error_status = lis2dh12_acceleration_raw_get(ctx, acc_raw);
+    error_status = lis2dh12_acceleration_raw_get(dev_ctx, acc_raw);
     return acc_raw;
 }
 
 int16_t* LIS2DH12::acceleration(){
     int16_t* acc_raw = acceleration_raw();
     lis2dh12_fs_t fs_scale;
-    lis2dh12_full_scale_get(ctx, &fs_scale);
+    lis2dh12_full_scale_get(dev_ctx, &fs_scale);
 
     switch (operation_mode) {
         case LIS2DH12_HR_12bit:
@@ -155,14 +163,14 @@ int16_t* LIS2DH12::acceleration(){
 
 int16_t LIS2DH12::temperature_raw(){
     uint8_t temp_ready;
-    error_status = lis2dh12_xl_data_ready_get(ctx, temp_ready);
+    error_status = lis2dh12_xl_data_ready_get(dev_ctx, temp_ready);
 
     if (error_status != 0 || !temp_ready) {
         wait_value();
     }
 
     int16_t temp;
-    error_status = lis2dh12_temperature_raw_get(ctx, &temp);
+    error_status = lis2dh12_temperature_raw_get(dev_ctx, &temp);
     return temp;
 }
 
@@ -187,17 +195,17 @@ int16_t LIS2DH12::temperature(){
 }
 
 void LIS2DH12::config_interruption(lis2dh12_ctrl_reg3_t val){
-    error_status = lis2dh12_pin_int1_config_set(ctx, val);
+    error_status = lis2dh12_pin_int1_config_set(dev_ctx, val);
 }
 
 lis2dh12_int1_src_t LIS2DH12::interrupt_1(){
     lis2dh12_int1_src_t val;
-    error_status = lis2dh12_int1_gen_source_get(ctx, &val);
+    error_status = lis2dh12_int1_gen_source_get(dev_ctx, &val);
     return val;
 }
 
 lis2dh12_int2_src_t LIS2DH12::interrupt_2(){
     lis2dh12_int2_src_t val;
-    error_status = lis2dh12_int2_gen_source_get(ctx, &val);
+    error_status = lis2dh12_int2_gen_source_get(dev_ctx, &val);
     return val;
 }
