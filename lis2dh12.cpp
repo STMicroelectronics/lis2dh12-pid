@@ -213,8 +213,12 @@ int16_t LIS2DH12::temperature(){
     return convert_temperature(temp_raw);
 }
 
-void LIS2DH12::config_interruption(lis2dh12_ctrl_reg3_t val){
-    error_status = lis2dh12_pin_int1_config_set(dev_ctx, val);
+void LIS2DH12::config_interruption(lis2dh12_ctrl_reg3_t cfg, uint8_t threshold, uint8_t duration){
+    error_status = lis2dh12_pin_int1_config_set(dev_ctx, cfg);
+    if (error_status != 0) return;
+    error_status = lis2dh12_int1_gen_threshold_set(dev_ctx, threshold);
+    if (error_status != 0) return;
+    error_status = lis2dh12_int1_gen_duration_set(dev_ctx, duration);
 }
 
 lis2dh12_int1_src_t LIS2DH12::interrupt_1(){

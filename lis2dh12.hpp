@@ -23,7 +23,7 @@ public:
     int16_t* acceleration();
     int16_t temperature_raw();
     int16_t temperature();
-    void config_interruption(lis2dh12_ctrl_reg3_t);
+    void config_interruption(lis2dh12_ctrl_reg3_t, uint8_t, uint8_t);
     lis2dh12_int1_src_t interrupt_1();
     lis2dh12_int2_src_t interrupt_2();
 
