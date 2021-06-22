@@ -8,12 +8,13 @@
 class LIS2DH12 {
 public:
     LIS2DH12(lis2dh12_op_md_t op, stmdev_write_ptr wr, stmdev_read_ptr rd) {
-        operation_mode = op;
-
         ctx->write_reg = wr;
         ctx->read_reg = rd;
-
+        
+        operation_mode = op;
         error_status = 0;
+        microsecond = 0;
+        disable();
     }
 
     ~LIS2DH12(){}
