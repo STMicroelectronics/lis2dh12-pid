@@ -9,10 +9,8 @@ public:
     LIS2DH12(lis2dh12_op_md_t op, stmdev_write_ptr wr, stmdev_read_ptr rd) {
         operation_mode = op;
 
-        stmdev_ctx_t ctx_tmp;
-        ctx_tmp.write_reg = wr;
-        ctx_tmp.read_reg = rd;
-        ctx = &ctx_tmp;
+        ctx->write_reg = wr;
+        ctx->read_reg = rd;
 
         error_status = 0;
     }
@@ -35,7 +33,7 @@ public:
     lis2dh12_int2_src_t interrupt_2();
 
 private:
-    stmdev_ctx_t *ctx;
+    stmdev_ctx_t ctx[1];
     lis2dh12_op_md_t operation_mode;
     int error_status;
 };
