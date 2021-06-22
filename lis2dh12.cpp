@@ -5,46 +5,60 @@
 #include <fcntl.h>      // open
 #include <unistd.h>     // usleep, write, read, close
 
+typedef float_t (*convert_int16_float_ptr) (int16_t);
+convert_int16_float_ptr convert_acceleration;
+convert_int16_float_ptr convert_temperature;
+
 
 void LIS2DH12::enable(lis2dh12_odr_t odr){
     error_status = lis2dh12_data_rate_set(ctx, odr);
     switch (odr) {
-    case LIS2DH12_POWER_DOWN:
-        microsecond = 0;
-        break;
-    case LIS2DH12_ODR_1Hz:
-        microsecond = 1000000;  // (1/1Hz)   = 1s
-        break;
-    case LIS2DH12_ODR_10Hz:
-        microsecond = 100000;   // (1/10Hz)  = 0.1s
-        break;
-    case LIS2DH12_ODR_25Hz:
-        microsecond = 40000;    // (1/25Hz)  = 0.04s
-        break;
-    case LIS2DH12_ODR_50Hz:
-        microsecond = 20000;    // (1/50Hz)  = 0.02s
-        break;
-    case LIS2DH12_ODR_100Hz:
-        microsecond = 10000;    // (1/100Hz) = 0.001s
-        break;
-    case LIS2DH12_ODR_200Hz:
-        microsecond = 5000;     // (1/200Hz) = 0.0005s
-        break;
-    case LIS2DH12_ODR_400Hz:
-        microsecond = 2500;     // (1/400Hz) = 0.00025s
-        break;
-    case LIS2DH12_ODR_1kHz620_LP:
-        microsecond = 618;      // (1/1620Hz) = 617.28 us
-        break;
-    case LIS2DH12_ODR_5kHz376_LP_1kHz344_NM_HP:
-        if (operation_mode != LIS2DH12_LP_8bit)
-            microsecond = 745;  // (1/1344Hz) = 744.05 us
-        else
-            microsecond = 187;  // (1/5376Hz) = 186.01 us
-        break;
-    default:
-        microsecond = 0;
-        break;
+        case LIS2DH12_POWER_DOWN:
+            microsecond = 0;
+            break;
+
+        case LIS2DH12_ODR_1Hz:
+            microsecond = 1000000;  // (1/1Hz)   = 1s
+            break;
+
+        case LIS2DH12_ODR_10Hz:
+            microsecond = 100000;   // (1/10Hz)  = 0.1s
+            break;
+
+        case LIS2DH12_ODR_25Hz:
+            microsecond = 40000;    // (1/25Hz)  = 0.04s
+            break;
+
+        case LIS2DH12_ODR_50Hz:
+            microsecond = 20000;    // (1/50Hz)  = 0.02s
+            break;
+
+        case LIS2DH12_ODR_100Hz:
+            microsecond = 10000;    // (1/100Hz) = 0.001s
+            break;
+
+        case LIS2DH12_ODR_200Hz:
+            microsecond = 5000;     // (1/200Hz) = 0.0005s
+            break;
+
+        case LIS2DH12_ODR_400Hz:
+            microsecond = 2500;     // (1/400Hz) = 0.00025s
+            break;
+
+        case LIS2DH12_ODR_1kHz620_LP:
+            microsecond = 618;      // (1/1620Hz) = 617.28 us
+            break;
+
+        case LIS2DH12_ODR_5kHz376_LP_1kHz344_NM_HP:
+            if (operation_mode != LIS2DH12_LP_8bit)
+                microsecond = 745;  // (1/1344Hz) = 744.05 us
+            else
+                microsecond = 187;  // (1/5376Hz) = 186.01 us
+            break;
+
+        default:
+            microsecond = 0;
+            break;
     }
 }
 
@@ -60,24 +74,83 @@ int16_t* LIS2DH12::acceleration_raw(){
         wait_value();
     }
 
-    int16_t acc[3];
-    error_status = lis2dh12_acceleration_raw_get(ctx, acc);
-    return acc;
+    int16_t acc_raw[3];
+    error_status = lis2dh12_acceleration_raw_get(ctx, acc_raw);
+    return acc_raw;
 }
 
-int16_t LIS2DH12::x_axis(){
-    int16_t *acc = acceleration_raw();
-    return acc[0];
-}
+int16_t* LIS2DH12::acceleration(){
+    int16_t* acc_raw = acceleration_raw();
+    lis2dh12_fs_t fs_scale;
+    lis2dh12_full_scale_get(ctx, &fs_scale);
 
-int16_t LIS2DH12::y_axis(){
-    int16_t *acc = acceleration_raw();
-    return acc[1];
-}
+    switch (operation_mode) {
+        case LIS2DH12_HR_12bit:
+            switch(fs_scale) {
+                case LIS2DH12_2g:
+                    convert_acceleration = lis2dh12_from_fs2_hr_to_mg;
+                    break;
 
-int16_t LIS2DH12::z_axis(){
-    int16_t *acc = acceleration_raw();
-    return acc[2];
+                case LIS2DH12_4g:
+                    convert_acceleration = lis2dh12_from_fs4_hr_to_mg;
+                    break;
+
+                case LIS2DH12_8g:
+                    convert_acceleration = lis2dh12_from_fs8_hr_to_mg;
+                    break;
+
+                case LIS2DH12_16g:
+                    convert_acceleration = lis2dh12_from_fs16_hr_to_mg;
+                    break;
+            }
+            break;
+
+        case LIS2DH12_NM_10bit:
+            switch(fs_scale) {
+                case LIS2DH12_2g:
+                    convert_acceleration = lis2dh12_from_fs2_nm_to_mg;
+                    break;
+
+                case LIS2DH12_4g:
+                    convert_acceleration = lis2dh12_from_fs4_nm_to_mg;
+                    break;
+
+                case LIS2DH12_8g:
+                    convert_acceleration = lis2dh12_from_fs8_nm_to_mg;
+                    break;
+
+                case LIS2DH12_16g:
+                    convert_acceleration = lis2dh12_from_fs16_nm_to_mg;
+                    break;
+            }
+            break;
+
+        case LIS2DH12_LP_8bit:
+            switch(fs_scale) {
+                case LIS2DH12_2g:
+                    convert_acceleration = lis2dh12_from_fs2_lp_to_mg;
+                    break;
+
+                case LIS2DH12_4g:
+                    convert_acceleration = lis2dh12_from_fs4_lp_to_mg;
+                    break;
+
+                case LIS2DH12_8g:
+                    convert_acceleration = lis2dh12_from_fs8_lp_to_mg;
+                    break;
+
+                case LIS2DH12_16g:
+                    convert_acceleration = lis2dh12_from_fs16_lp_to_mg;
+                    break;
+            }
+            break;
+    }
+
+    float_t acc_f[3];
+    acc_f[0] = convert_acceleration(acc_raw[0]);
+    acc_f[1] = convert_acceleration(acc_raw[1]);
+    acc_f[2] = convert_acceleration(acc_raw[2]);
+    return acc_f;
 }
 
 int16_t LIS2DH12::temperature_raw(){
@@ -91,6 +164,26 @@ int16_t LIS2DH12::temperature_raw(){
     int16_t temp;
     error_status = lis2dh12_temperature_raw_get(ctx, &temp);
     return temp;
+}
+
+int16_t LIS2DH12::temperature(){
+    int16_t temp_raw = temperature_raw();
+
+    switch (operation_mode) {
+        case LIS2DH12_HR_12bit:
+            convert_temperature = lis2dh12_from_lsb_hr_to_celsius;
+            break;
+
+        case LIS2DH12_NM_10bit:
+            convert_temperature = lis2dh12_from_lsb_nm_to_celsius;
+            break;
+
+        case LIS2DH12_LP_8bit:
+            convert_temperature = lis2dh12_from_lsb_lp_to_celsius;
+            break;
+    }
+
+    return convert_temperature(temp_raw);
 }
 
 void LIS2DH12::config_interruption(lis2dh12_ctrl_reg3_t val){

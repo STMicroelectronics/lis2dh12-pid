@@ -8,13 +8,21 @@
 class LIS2DH12 {
 public:
     LIS2DH12(lis2dh12_op_md_t op, stmdev_write_ptr wr, stmdev_read_ptr rd) {
+        // NOTE: if to use SPI, check CTRL_REG4 bit 0 and edit this code if to need
         ctx->write_reg = wr;
         ctx->read_reg = rd;
         
         operation_mode = op;
         error_status = 0;
         microsecond = 0;
-        disable();
+        
+        uint8_t whoamI
+        lis2dh12_device_id_get(&dev_ctx, &whoamI);
+        if (whoamI != LIS2DH12_ID) {
+            error_status = -1;
+        } else {
+            disable();
+        }
     }
 
     ~LIS2DH12(){}
@@ -26,10 +34,9 @@ public:
     void enable(lis2dh12_odr_t odr);
     void disable();
     int16_t* acceleration_raw();
-    int16_t x_axis();
-    int16_t y_axis();
-    int16_t z_axis();
+    int16_t* acceleration();
     int16_t temperature_raw();
+    int16_t temperature();
     void config_interruption(lis2dh12_ctrl_reg3_t);
     lis2dh12_int1_src_t interrupt_1();
     lis2dh12_int2_src_t interrupt_2();
