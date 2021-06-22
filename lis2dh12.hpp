@@ -2,6 +2,7 @@
 #define LIS2DH12_DRIVER
 
 #include "lis2dh12_reg.h"
+#include <unistd.h>         /* usleep */
 
 
 class LIS2DH12 {
@@ -33,9 +34,14 @@ public:
     lis2dh12_int2_src_t interrupt_2();
 
 private:
+    void wait_value() {
+        usleep(microsecond);
+    }
+
     stmdev_ctx_t ctx[1];
     lis2dh12_op_md_t operation_mode;
     int error_status;
+    unsigned int microsecond;
 };
 
 #endif // LIS2DH12_DRIVER
