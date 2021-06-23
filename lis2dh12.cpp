@@ -129,6 +129,9 @@ int16_t* LIS2DH12::acceleration(){
                 case LIS2DH12_16g:
                     convert_acceleration = lis2dh12_from_fs16_hr_to_mg;
                     break;
+
+                default:
+                    return .0;
             }
             break;
 
@@ -149,6 +152,9 @@ int16_t* LIS2DH12::acceleration(){
                 case LIS2DH12_16g:
                     convert_acceleration = lis2dh12_from_fs16_nm_to_mg;
                     break;
+
+                default:
+                    return .0;
             }
             break;
 
@@ -169,8 +175,14 @@ int16_t* LIS2DH12::acceleration(){
                 case LIS2DH12_16g:
                     convert_acceleration = lis2dh12_from_fs16_lp_to_mg;
                     break;
+
+                default:
+                    return .0;
             }
             break;
+
+        default:
+            return .0;
     }
 
     float_t acc_f[3];
@@ -182,7 +194,7 @@ int16_t* LIS2DH12::acceleration(){
 
 int16_t LIS2DH12::temperature_raw(){
     uint8_t temp_ready;
-    error_status = lis2dh12_xl_data_ready_get(dev_ctx, temp_ready);
+    error_status = lis2dh12_temp_data_ready_get(dev_ctx, temp_ready);
 
     if (error_status != 0 || !temp_ready) {
         wait_value();
@@ -208,6 +220,9 @@ int16_t LIS2DH12::temperature(){
         case LIS2DH12_LP_8bit:
             convert_temperature = lis2dh12_from_lsb_lp_to_celsius;
             break;
+
+        default:
+            return 0;
     }
 
     return convert_temperature(temp_raw);
