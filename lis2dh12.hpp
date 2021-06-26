@@ -11,7 +11,12 @@ public:
 
     ~LIS2DH12(){}
 
-    int get_error() {
+    /**
+     * Return the error code generated on execution of the last method of the object.
+     * MANDATORY: return 0 -> no Error.
+     * @return int Integer corresponding to error code.
+     */
+    int have_error() {
         return error_status;
     }
     
