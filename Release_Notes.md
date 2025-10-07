@@ -85,7 +85,7 @@ This directory contains the LIS2DH12 component drivers.
 
 </div>
 
-<input type="checkbox" id="collapse-section5" checked aria-hidden="true">
+<input type="checkbox" id="collapse-section5" aria-hidden="true">
 <label for="collapse-section5" aria-hidden="true">V2.1.0 / 07-Jul-2025</label>
 <div>
 
@@ -97,6 +97,20 @@ This directory contains the LIS2DH12 component drivers.
 ##
 
 </div>
+
+<input type="checkbox" id="collapse-section6" checked aria-hidden="true">
+<label for="collapse-section6" aria-hidden="true">V2.2.0 / 07-Oct-2025</label>
+<div>
+
+## Main changes
+
+- Added checks after reads to avoid write content on pointers
+- Adding CODE_OF_CONDUCT.md and SECURITY.md
+
+##
+
+</div>
+
 :::
 
 
